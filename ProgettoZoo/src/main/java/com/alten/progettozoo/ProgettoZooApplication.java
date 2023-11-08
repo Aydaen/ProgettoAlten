@@ -41,7 +41,7 @@ public class ProgettoZooApplication {
         lions.add(lion3);
 
         // Creo un nuovo ArrayList contenente tutti gli animali
-        ArrayList<Animal> allAnimals = new ArrayList<>();
+        List<Animal> allAnimals = new ArrayList<>();
         allAnimals.addAll(eagles);
         allAnimals.addAll(tigers);
         allAnimals.addAll(lions);
@@ -224,7 +224,6 @@ public class ProgettoZooApplication {
 
     }
 
-
     private static void findLongestTailAmongTailedAnimals(List<Animal> allAnimals) {
         Double maxTailLength = 0.0;
         List<String> longestTailAnimalsNames = new ArrayList<>();
@@ -294,6 +293,4 @@ public class ProgettoZooApplication {
         }
 
     }
-
-
 }
