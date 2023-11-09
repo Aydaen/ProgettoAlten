@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// La creazione delle liste, l'istanziazione degli animali e il loro inserimento nelle liste viene ora effettuato nella classe Zoo, al fine di una corretta
+// suddivisione delle responsabilità tra classi
 public class Zoo {
     private List<Eagle> eagles = new ArrayList<>();
     private List<Lion> lions = new ArrayList<>();

@@ -8,34 +8,35 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// Il main risulta ora costituito solo dall'istanziazione di uno Zoo e dal richiamo dei metodi necessari alle interrogazioni richieste dalla traccia
 @SpringBootApplication
 public class ProgettoZooApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ProgettoZooApplication.class, args);
 
-        Zoo altenZoo = new Zoo();
-        altenZoo.initializeZoo();
+        Zoo myZoo = new Zoo();
+        myZoo.initializeZoo();
 
         // Effettuo le interrogazioni richieste dall'esercizio tramite i metodi creati in seguito
-        altenZoo.findTallestAnimalAmongASpecie(altenZoo.getEagles());
-        altenZoo.findTallestAnimalAmongASpecie(altenZoo.getTigers());
-        altenZoo.findTallestAnimalAmongASpecie(altenZoo.getLions());
+        myZoo.findTallestAnimalAmongASpecie(myZoo.getEagles());
+        myZoo.findTallestAnimalAmongASpecie(myZoo.getTigers());
+        myZoo.findTallestAnimalAmongASpecie(myZoo.getLions());
 
-        altenZoo.findShortestAnimalAmongASpecie(altenZoo.getEagles());
-        altenZoo.findShortestAnimalAmongASpecie(altenZoo.getTigers());
-        altenZoo.findShortestAnimalAmongASpecie(altenZoo.getLions());
+        myZoo.findShortestAnimalAmongASpecie(myZoo.getEagles());
+        myZoo.findShortestAnimalAmongASpecie(myZoo.getTigers());
+        myZoo.findShortestAnimalAmongASpecie(myZoo.getLions());
 
-        altenZoo.findHeaviestAnimalAmongASpecie(altenZoo.getEagles());
-        altenZoo.findHeaviestAnimalAmongASpecie(altenZoo.getTigers());
-        altenZoo.findHeaviestAnimalAmongASpecie(altenZoo.getLions());
+        myZoo.findHeaviestAnimalAmongASpecie(myZoo.getEagles());
+        myZoo.findHeaviestAnimalAmongASpecie(myZoo.getTigers());
+        myZoo.findHeaviestAnimalAmongASpecie(myZoo.getLions());
 
-        altenZoo.findLightestAnimalAmongASpecie(altenZoo.getEagles());
-        altenZoo.findLightestAnimalAmongASpecie(altenZoo.getTigers());
-        altenZoo.findLightestAnimalAmongASpecie(altenZoo.getLions());
+        myZoo.findLightestAnimalAmongASpecie(myZoo.getEagles());
+        myZoo.findLightestAnimalAmongASpecie(myZoo.getTigers());
+        myZoo.findLightestAnimalAmongASpecie(myZoo.getLions());
 
-        altenZoo.findLongestTailAmongTailedAnimals(altenZoo.getAllAnimals());
+        myZoo.findLongestTailAmongTailedAnimals(myZoo.getAllAnimals());
 
-        altenZoo.findBiggestWingspanAmongWingedAnimals(altenZoo.getAllAnimals());
+        myZoo.findBiggestWingspanAmongWingedAnimals(myZoo.getAllAnimals());
     }
 }
