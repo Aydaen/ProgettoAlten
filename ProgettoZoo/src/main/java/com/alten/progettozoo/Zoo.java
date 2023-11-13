@@ -3,9 +3,8 @@ package com.alten.progettozoo;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-// La creazione delle liste, l'istanziazione degli animali e il loro inserimento nelle liste viene ora effettuato nella classe Zoo, al fine di una corretta
-// suddivisione delle responsabilità tra classi
 public class Zoo {
     private List<Eagle> eagles = new ArrayList<>();
     private List<Lion> lions = new ArrayList<>();
@@ -71,104 +70,123 @@ public class Zoo {
         allAnimals.addAll(lions);
     }
 
-    public void findTallestAnimalAmongASpecie(List<? extends Animal> specie) {
-        double maxHeight = 0.0;
-        List<String> tallestAnimalsNames = new ArrayList<>();
+    public void findTallestAnimalAmongASpecie(Class<? extends Animal> specie) {
+//        double maxHeight = 0.0;
+//        List<String> tallestAnimalsNames = new ArrayList<>();
+//
+//        for (Animal animal : allAnimals) {
+//            if (animal.getClass() == specie) {
+//                if (animal.getHeight() > maxHeight) {
+//                    maxHeight = animal.getHeight();
+//                    tallestAnimalsNames.clear();
+//                    tallestAnimalsNames.add(animal.getName());
+//                } else if (animal.getHeight() == maxHeight) {
+//                    tallestAnimalsNames.add(animal.getName());
+//                }
+//            }
+//        }
+//
+//        if (tallestAnimalsNames.size() == 1) {
+//            System.out.println("L'esemplare più alto nella specie indicata è " + tallestAnimalsNames.get(0) + " con un'altezza di " + maxHeight + " m");
+//        } else if (tallestAnimalsNames.size() > 1) {
+//            StringBuilder result = new StringBuilder("Gli esemplari più alti nella specie selezionata sono ");
+//
+//            for (String name : tallestAnimalsNames) {
+//                result.append(name).append(", ");
+//            }
+//
+//            result.delete(result.length() - 2, result.length());
+//            result.append(" con un'altezza di ").append(maxHeight).append(" m");
+//
+//            System.out.println(result);
+//        } else {
+//            System.out.println("Nessun esemplare trovato nella specie selezionata");
+//        }
 
-        for (Animal animal : specie) {
-            if (animal.getHeight() > maxHeight) {
-                // Se l'altezza dell'animale iterato è maggiore di maxHeight significa che è stata trovata una nuova altezza maggiore, quindi rimuovo dall'array eventuali animali
-                // precedentemente inseriti e vi inserisco l'animale iterato
-                maxHeight = animal.getHeight();
-                tallestAnimalsNames.clear();
-                tallestAnimalsNames.add(animal.getName());
-            } else if (animal.getHeight() == maxHeight) {
-                // Se l'altezza dell'animale iterato è uguale all'attuale maxHeight significa che, al momento, ci sono due animali con l'altezza maggiore nella specie, di
-                // conseguenza aggiungo l'animale iterato alla lista senza rimuovere quelli precedenti
-                tallestAnimalsNames.add(animal.getName());
-            }
+        List<Animal> filteredAnimals = allAnimals.stream()
+                .filter(animal -> animal.getClass() == specie)
+                .toList();
+
+        if (filteredAnimals.isEmpty()) {
+            System.out.println("Nessun esemplare trovato nella specie selezionata");
+            return;
         }
 
+        double maxHeight = filteredAnimals.stream()
+                .mapToDouble(Animal::getHeight)
+                .max()
+                .orElseThrow();
+
+        List<String> tallestAnimalsNames = filteredAnimals.stream()
+                .filter(animal -> animal.getHeight() == maxHeight)
+                .map(Animal::getName)
+                .toList();
+
         if (tallestAnimalsNames.size() == 1) {
-            // Se la lista dei nomi degli animali contiene un solo elemento significa che c'è un solo animale con l'altezza maggiore nella sua specie
             System.out.println("L'esemplare più alto nella specie indicata è " + tallestAnimalsNames.get(0) + " con un'altezza di " + maxHeight + " m");
-        } else if (tallestAnimalsNames.size() > 1) {
-            // Se la lista contiene più di un elemento significa che c'è più di un animale con altezza maggiore, di conseguenza stampo i nomi dei suddetti animali
-            StringBuilder result = new StringBuilder("Gli esemplari più alti nella specie selezionata sono ");
+        } else {
+            String result = tallestAnimalsNames.size() > 1 ?
+                    "Gli esemplari più alti nella specie selezionata sono " :
+                    "Nessun esemplare trovato nella specie selezionata";
 
-            for (String name : tallestAnimalsNames) {
-                result.append(name).append(", ");
-            }
-
-            // Rimuovo le ultime due posizioni della stringa creata con lo StringBuilder al fine di rimuovere l'ultimo ", " che viene inserito insieme all'ultimo animale iterato
-            result.delete(result.length() - 2, result.length());
-            result.append(" con un'altezza di ").append(maxHeight).append(" m");
+            result += tallestAnimalsNames.stream()
+                    .collect(Collectors.joining(", ", "", " con un'altezza di " + maxHeight + " m"));
 
             System.out.println(result);
-        } else {
-            // Nell'else gestisco il caso in cui la lista contenga meno di un elemento
-            System.out.println("Nessun esemplare trovato nella specie selezionata");
         }
     }
 
-    public void findShortestAnimalAmongASpecie(List<? extends Animal> specie) {
+    public void findShortestAnimalAmongASpecie(Class<? extends Animal> specie) {
         Double minHeight = 0.0;
         List<String> shortestAnimalsNames = new ArrayList<>();
 
-        for (Animal animal : specie) {
-            if (minHeight == 0.0) {
-                // Se minHeight è uguale a zero significa che ci troviamo nella prima iterazione, quindi il primo animale della lista sarà, momentaneamente, il più basso, dato che
-                // è impossibile che esista un animale con altezza minore di 0
-                minHeight = animal.getHeight();
-                shortestAnimalsNames.add(animal.getName());
-            } else {
-                // Se l'altezza dell'animale iterato è minore di minHeight significa che è stata trovata una nuova altezza minore, quindi rimuovo dall'array eventuali animali
-                // precedentemente inseriti e vi inserisco l'animale iterato
-                if (animal.getHeight() < minHeight) {
+        for (Animal animal : allAnimals) {
+            if (animal.getClass() == specie) {
+                if (minHeight == 0.0) {
                     minHeight = animal.getHeight();
-                    shortestAnimalsNames.clear();
                     shortestAnimalsNames.add(animal.getName());
-                } else if (animal.getHeight() == minHeight) {
-                    // Se l'altezza dell'animale iterato è uguale all'attuale minHeight significa che, al momento, ci sono due animali con l'altezza minore nella specie, di
-                    //  conseguenza aggiungo l'animale iterato alla lista senza rimuovere quelli precedenti
-                    shortestAnimalsNames.add(animal.getName());
+                } else {
+                    if (animal.getHeight() < minHeight) {
+                        minHeight = animal.getHeight();
+                        shortestAnimalsNames.clear();
+                        shortestAnimalsNames.add(animal.getName());
+                    } else if (animal.getHeight() == minHeight) {
+                        shortestAnimalsNames.add(animal.getName());
+                    }
                 }
             }
         }
 
         if (shortestAnimalsNames.size() == 1) {
-            // Se la lista dei nomi degli animali contiene un solo elemento significa che c'è un unico animale con l'altezza minore nella sua specie
             System.out.println("L'esemplare più basso nella specie indicata è " + shortestAnimalsNames.get(0) + " con un'altezza di " + minHeight + " m");
         } else if (shortestAnimalsNames.size() > 1) {
-            // Se la lista contiene più di un elemento significa che c'è più di un animale con altezza minore, di conseguenza stampo i nomi dei suddetti animali
             StringBuilder result = new StringBuilder("Gli esemplari più bassi nella specie indicata sono ");
 
             for (String name : shortestAnimalsNames) {
                 result.append(name).append(", ");
             }
 
-            // Rimuovo le ultime due posizioni della stringa creata con lo strinbuilder al fine di rimuovere l'ultimo ", " che viene inserito insieme all'ultimo animale iterato
             result.delete(result.length() - 2, result.length());
             result.append(" con un'altezza di ").append(minHeight).append(" m");
             System.out.println(result);
         } else {
-            // Nell'else gestisco il caso in cui la lista contenga meno di un elemento
             System.out.println("Nessun esemplare trovato nella specie selezionata");
         }
     }
 
-    // Il metodo che segue è identico a findTallestAnimalAmongASpecie riadattato al confronto del peso, mi astengo quindi da ulteriori commenti
-    public void findHeaviestAnimalAmongASpecie(List<? extends Animal> specie) {
+    public void findHeaviestAnimalAmongASpecie(Class<? extends  Animal> specie) {
         Double maxWeight = 0.0;
         List<String> heaviestAnimalsNames = new ArrayList<>();
 
-        for (Animal animal : specie) {
-            if (animal.getWeight() > maxWeight) {
-                maxWeight = animal.getWeight();
-                heaviestAnimalsNames.clear();
-                heaviestAnimalsNames.add(animal.getName());
-            } else if (animal.getHeight() == maxWeight) {
-                heaviestAnimalsNames.add(animal.getName());
+        for (Animal animal : allAnimals) {
+            if (animal.getClass() == specie) {
+                if (animal.getWeight() > maxWeight) {
+                    maxWeight = animal.getWeight();
+                    heaviestAnimalsNames.clear();
+                    heaviestAnimalsNames.add(animal.getName());
+                } else if (animal.getHeight() == maxWeight) {
+                    heaviestAnimalsNames.add(animal.getName());
+                }
             }
         }
 
@@ -189,22 +207,23 @@ public class Zoo {
         }
     }
 
-    // Il metodo che segue è identico a findShortestAnimalAmongASpecie riadattato al confronto del peso, mi astengo quindi da ulteriori commenti
-    public void findLightestAnimalAmongASpecie(List<? extends Animal> specie) {
+    public void findLightestAnimalAmongASpecie(Class<? extends Animal> specie) {
         Double minWeight = 0.0;
         List<String> lightestAnimalsNames = new ArrayList<>();
 
-        for (Animal animal : specie) {
-            if (minWeight == 0.0) {
-                minWeight = animal.getWeight();
-                lightestAnimalsNames.add(animal.getName());
-            } else {
-                if (animal.getWeight() < minWeight) {
+        for (Animal animal : allAnimals) {
+            if (animal.getClass() == specie) {
+                if (minWeight == 0.0) {
                     minWeight = animal.getWeight();
-                    lightestAnimalsNames.clear();
                     lightestAnimalsNames.add(animal.getName());
-                } else if (animal.getWeight() == minWeight) {
-                    lightestAnimalsNames.add(animal.getName());
+                } else {
+                    if (animal.getWeight() < minWeight) {
+                        minWeight = animal.getWeight();
+                        lightestAnimalsNames.clear();
+                        lightestAnimalsNames.add(animal.getName());
+                    } else if (animal.getWeight() == minWeight) {
+                        lightestAnimalsNames.add(animal.getName());
+                    }
                 }
             }
         }
@@ -227,16 +246,13 @@ public class Zoo {
 
     }
 
-    public void findLongestTailAmongTailedAnimals(List<Animal> allAnimals) {
+    public void findLongestTailAmongTailedAnimals() {
         Double maxTailLength = 0.0;
         List<String> longestTailAnimalsNames = new ArrayList<>();
 
         for (Animal animal : allAnimals) {
-            // Dato che siamo interessati a comparare solo gli animali che dispongono di una coda, grazie al seguente if escludiamo a priori tutti gli animali che ne sono sprovvisti
             if (animal instanceof TailedAnimal) {
-                // Effettuiamo il casting a TailedAnimal così da poter accedere alla proprietà getTailLength
                 if (((TailedAnimal) animal).getTailLength() > maxTailLength) {
-                    // Da qui il metodo è identico a findTallestAnimalAmongASpecie riadattato al confronto della lunghezza della coda, mi astengo quindi da ulteriori commenti
                     maxTailLength = ((TailedAnimal) animal).getTailLength();
                     longestTailAnimalsNames.clear();
                     longestTailAnimalsNames.add(animal.getName());
@@ -264,8 +280,7 @@ public class Zoo {
 
     }
 
-    // Il metodo che segue è identico a findLongestTailAmongTailedAnimals riadattato al confronto dell'apertura alare, mi astengo quindi da ulteriori commenti
-    public void findBiggestWingspanAmongWingedAnimals(List<Animal> allAnimals) {
+    public void findBiggestWingspanAmongWingedAnimals() {
         Double maxWingspan = 0.0;
         List<String> biggestWingspanAnimalsNames = new ArrayList<>();
 
