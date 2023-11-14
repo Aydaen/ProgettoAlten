@@ -1,47 +1,14 @@
 package com.alten.progettozoo;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Zoo {
-    private List<Eagle> eagles = new ArrayList<>();
-    private List<Lion> lions = new ArrayList<>();
-    private List<Tiger> tigers = new ArrayList<>();
-    private List<Animal> allAnimals = new ArrayList<>();
-
-    public List<Eagle> getEagles() {
-        return eagles;
-    }
-
-    public void setEagles(List<Eagle> eagles) {
-        this.eagles = eagles;
-    }
-
-    public List<Lion> getLions() {
-        return lions;
-    }
-
-    public void setLions(List<Lion> lions) {
-        this.lions = lions;
-    }
-
-    public List<Tiger> getTigers() {
-        return tigers;
-    }
-
-    public void setTigers(List<Tiger> tigers) {
-        this.tigers = tigers;
-    }
-
-    public List<Animal> getAllAnimals() {
-        return allAnimals;
-    }
-
-    public void setAllAnimals(List<Animal> allAnimals) {
-        this.allAnimals = allAnimals;
-    }
+    private final List<Eagle> eagles = new ArrayList<>();
+    private final List<Lion> lions = new ArrayList<>();
+    private final List<Tiger> tigers = new ArrayList<>();
+    private final Map<Class<? extends Animal>, List<? extends Animal>> allAnimals = new HashMap<>();
 
     public void initializeZoo() {
         Eagle eagle1 = new Eagle("Baldy", "Fish", 5, LocalDate.of(2020, 3, 15), 5.0, 0.5, 2.0);
@@ -59,256 +26,220 @@ public class Zoo {
         tigers.add(tiger3);
 
         Lion lion1 = new Lion("Simba", "Meat", 8, LocalDate.of(2017, 11, 10), 200.0, 2.0, 1.2);
-        Lion lion2 = new Lion("Nala", "Meat", 7, LocalDate.of(2018, 8, 18), 190.0, 0.9, 0.7);
+        Lion lion2 = new Lion("Nala", "Meat", 7, LocalDate.of(2018, 8, 18), 190.0, 0.9, 1.3);
         Lion lion3 = new Lion("Mufasa", "Meat", 10, LocalDate.of(2015, 12, 3), 220.0, 1.1, 0.9);
         lions.add(lion1);
         lions.add(lion2);
         lions.add(lion3);
 
-        allAnimals.addAll(eagles);
-        allAnimals.addAll(tigers);
-        allAnimals.addAll(lions);
+        allAnimals.put(Eagle.class, eagles);
+        allAnimals.put(Tiger.class, tigers);
+        allAnimals.put(Lion.class, lions);
+    }
+
+    // Il seguente metodo crea una mappa che ad ogni chiave, rappresentata dalle classi degli animali presenti nel sistema, associa il nome dell'animale tradotto ai fini
+    // di una stampa più comprensibile. Nel caso in cui al metodo venga passato come parametro una specie non presente nel sistema questo metodo ritornerà "specie sconosciuta"
+    public String speciesNamesTranslation(Class<? extends Animal> specie) {
+        Map<Class<? extends Animal>, String> speciesNames = Map.of(
+                Eagle.class, "aquila",
+                Tiger.class, "tigre",
+                Lion.class, "leone"
+        );
+
+        return speciesNames.getOrDefault(specie, "Specie sconosciuta");
+    }
+
+    public List<? extends Animal> getAllAnimalsOfASpecifiedSpecie(Class<? extends Animal> specie) {
+        return allAnimals.get(specie);
+    }
+
+    public List<? extends Animal> getAllAnimalsWithASpecifiedTrait(Class<? extends Animal> trait) {
+        List<? extends Animal> filteredAnimals;
+
+        filteredAnimals = allAnimals.values().stream()
+                // .flatMap(Collection::stream) in questo contesto mi permette di estrarre gli elementi delle collezioni che compongono allAnimals per trasferirli in una map
+                .flatMap(Collection::stream)
+                .filter(trait::isInstance)
+                .collect(Collectors.toList());
+
+        return filteredAnimals;
     }
 
     public void findTallestAnimalAmongASpecie(Class<? extends Animal> specie) {
-//        double maxHeight = 0.0;
-//        List<String> tallestAnimalsNames = new ArrayList<>();
-//
-//        for (Animal animal : allAnimals) {
-//            if (animal.getClass() == specie) {
-//                if (animal.getHeight() > maxHeight) {
-//                    maxHeight = animal.getHeight();
-//                    tallestAnimalsNames.clear();
-//                    tallestAnimalsNames.add(animal.getName());
-//                } else if (animal.getHeight() == maxHeight) {
-//                    tallestAnimalsNames.add(animal.getName());
-//                }
-//            }
-//        }
-//
-//        if (tallestAnimalsNames.size() == 1) {
-//            System.out.println("L'esemplare più alto nella specie indicata è " + tallestAnimalsNames.get(0) + " con un'altezza di " + maxHeight + " m");
-//        } else if (tallestAnimalsNames.size() > 1) {
-//            StringBuilder result = new StringBuilder("Gli esemplari più alti nella specie selezionata sono ");
-//
-//            for (String name : tallestAnimalsNames) {
-//                result.append(name).append(", ");
-//            }
-//
-//            result.delete(result.length() - 2, result.length());
-//            result.append(" con un'altezza di ").append(maxHeight).append(" m");
-//
-//            System.out.println(result);
-//        } else {
-//            System.out.println("Nessun esemplare trovato nella specie selezionata");
-//        }
+        // Recupero la lista degli animali filtrati grazie al metodo getAllAnimalsOfASpecifiedSpecie
+        List<? extends Animal> filteredAnimals = getAllAnimalsOfASpecifiedSpecie(specie);
 
-        List<Animal> filteredAnimals = allAnimals.stream()
-                .filter(animal -> animal.getClass() == specie)
-                .toList();
+        // Se la lista risulta non vuota procedo al confronto tra le altezze
+        if (!filteredAnimals.isEmpty()) {
+            double maxHeight = filteredAnimals.stream()
+                    .mapToDouble(Animal::getHeight)
+                    .max()
+                    .orElse(0.0);
 
-        if (filteredAnimals.isEmpty()) {
-            System.out.println("Nessun esemplare trovato nella specie selezionata");
-            return;
-        }
+            // Creo la lista contenente i nomi degli animali più alti che ottengo effettuando una stream sugli animali filtrati in base alla specie
+            List<String> tallestAnimalsNames = filteredAnimals.stream()
+                    // Tramite l'operatore .filter escludo gli animali che non abbiano altezza uguale a maxHeight precedentemente determinata
+                    .filter(animal -> animal.getHeight() == maxHeight)
+                    .map(Animal::getName)
+                    .toList();
 
-        double maxHeight = filteredAnimals.stream()
-                .mapToDouble(Animal::getHeight)
-                .max()
-                .orElseThrow();
+            // Se tallestAnimalsNames.size è uguale a uno significa che c'è un solo animale più alto, di conseguenza ne stampo il nome e l'altezza
+            if (tallestAnimalsNames.size() == 1) {
+                System.out.println("L'esemplare più alto nella specie " + speciesNamesTranslation(specie) + " è " + tallestAnimalsNames.get(0) + " con un'altezza di " + maxHeight);
+                // Se tallestAnimalsNames.size è maggiore di uno significa che c'è più di un animale con l'altezza maggiore tra quelli esaminati
+            } else if (tallestAnimalsNames.size() > 1) {
+                String result = tallestAnimalsNames.stream()
+                        // Tramite l'operatore .joining, che ci permette di concatenare gli elementi di uno stream in una stringa, creo la stringa result coi nomi degli animali più alti
+                        .collect(Collectors.joining(", ", "Gli esemplari più alti nella specie " + speciesNamesTranslation(specie) + " sono ", " con un'altezza di " + maxHeight + " m"));
+                System.out.println(result);
+            } else {
+                System.out.println("Nessun esemplare trovato nella specie selezionata");
+            }
 
-        List<String> tallestAnimalsNames = filteredAnimals.stream()
-                .filter(animal -> animal.getHeight() == maxHeight)
-                .map(Animal::getName)
-                .toList();
-
-        if (tallestAnimalsNames.size() == 1) {
-            System.out.println("L'esemplare più alto nella specie indicata è " + tallestAnimalsNames.get(0) + " con un'altezza di " + maxHeight + " m");
         } else {
-            String result = tallestAnimalsNames.size() > 1 ?
-                    "Gli esemplari più alti nella specie selezionata sono " :
-                    "Nessun esemplare trovato nella specie selezionata";
-
-            result += tallestAnimalsNames.stream()
-                    .collect(Collectors.joining(", ", "", " con un'altezza di " + maxHeight + " m"));
-
-            System.out.println(result);
+            System.out.println("Specie non trovata");
         }
     }
 
+    // I metodi che seguono sono identici a findTallestAnimalAmongASpecie, riadattati alla ricerca di parametri diversi indicati nei nomi dei metodi stessi
+    // Mi astengo quindi da ulteriori commenti
     public void findShortestAnimalAmongASpecie(Class<? extends Animal> specie) {
-        Double minHeight = 0.0;
-        List<String> shortestAnimalsNames = new ArrayList<>();
+        List<? extends Animal> filteredAnimals = getAllAnimalsOfASpecifiedSpecie(specie);
 
-        for (Animal animal : allAnimals) {
-            if (animal.getClass() == specie) {
-                if (minHeight == 0.0) {
-                    minHeight = animal.getHeight();
-                    shortestAnimalsNames.add(animal.getName());
-                } else {
-                    if (animal.getHeight() < minHeight) {
-                        minHeight = animal.getHeight();
-                        shortestAnimalsNames.clear();
-                        shortestAnimalsNames.add(animal.getName());
-                    } else if (animal.getHeight() == minHeight) {
-                        shortestAnimalsNames.add(animal.getName());
-                    }
-                }
-            }
-        }
+        if (!filteredAnimals.isEmpty()) {
+            double minHeight = filteredAnimals.stream()
+                    .mapToDouble(Animal::getHeight)
+                    .min()
+                    .orElse(0.0);
 
-        if (shortestAnimalsNames.size() == 1) {
-            System.out.println("L'esemplare più basso nella specie indicata è " + shortestAnimalsNames.get(0) + " con un'altezza di " + minHeight + " m");
-        } else if (shortestAnimalsNames.size() > 1) {
-            StringBuilder result = new StringBuilder("Gli esemplari più bassi nella specie indicata sono ");
+            List<String> shortestAnimalsNames = filteredAnimals.stream()
+                    .filter(animal -> animal.getHeight() == minHeight)
+                    .map(Animal::getName)
+                    .toList();
 
-            for (String name : shortestAnimalsNames) {
-                result.append(name).append(", ");
+            if (shortestAnimalsNames.size() == 1) {
+                System.out.println("L'esemplare più basso nella specie " + speciesNamesTranslation(specie) + " è " + shortestAnimalsNames.get(0) + " con un'altezza di " + minHeight);
+            } else if (shortestAnimalsNames.size() > 1) {
+                String result = shortestAnimalsNames.stream()
+                        .collect(Collectors.joining(", ", "Gli esemplari più bassi nella specie " + speciesNamesTranslation(specie) + " sono ", " con un'altezza di " + minHeight + " m"));
+                System.out.println(result);
+            } else {
+                System.out.println("Nessun esemplare trovato nella specie selezionata");
             }
 
-            result.delete(result.length() - 2, result.length());
-            result.append(" con un'altezza di ").append(minHeight).append(" m");
-            System.out.println(result);
         } else {
-            System.out.println("Nessun esemplare trovato nella specie selezionata");
+            System.out.println("Specie non trovata");
         }
     }
 
-    public void findHeaviestAnimalAmongASpecie(Class<? extends  Animal> specie) {
-        Double maxWeight = 0.0;
-        List<String> heaviestAnimalsNames = new ArrayList<>();
+    public void findHeaviestAnimalAmongASpecie(Class<? extends Animal> specie) {
+        List<? extends Animal> filteredAnimals = getAllAnimalsOfASpecifiedSpecie(specie);
 
-        for (Animal animal : allAnimals) {
-            if (animal.getClass() == specie) {
-                if (animal.getWeight() > maxWeight) {
-                    maxWeight = animal.getWeight();
-                    heaviestAnimalsNames.clear();
-                    heaviestAnimalsNames.add(animal.getName());
-                } else if (animal.getHeight() == maxWeight) {
-                    heaviestAnimalsNames.add(animal.getName());
-                }
+        if (!filteredAnimals.isEmpty()) {
+            double maxWeight = filteredAnimals.stream()
+                    .mapToDouble(Animal::getHeight)
+                    .max()
+                    .orElse(0.0);
+
+            List<String> heaviestAnimalsNames = filteredAnimals.stream()
+                    .filter(animal -> animal.getHeight() == maxWeight)
+                    .map(Animal::getName)
+                    .toList();
+
+            if (heaviestAnimalsNames.size() == 1) {
+                System.out.println("L'esemplare più pesante nella specie " + speciesNamesTranslation(specie) + " è " + heaviestAnimalsNames.get(0) + " con un peso di " + maxWeight);
+            } else if (heaviestAnimalsNames.size() > 1) {
+                String result = heaviestAnimalsNames.stream()
+                        .collect(Collectors.joining(", ", "Gli esemplari più pesanti nella specie " + speciesNamesTranslation(specie) + " sono ", " con un peso di " + maxWeight + " kg"));
+                System.out.println(result);
+            } else {
+                System.out.println("Nessun esemplare trovato nella specie selezionata");
             }
-        }
 
-        if (heaviestAnimalsNames.size() == 1) {
-            System.out.println("L'esemplare più pesante nella specie indicata è " + heaviestAnimalsNames.get(0) + " con un peso di " + maxWeight + " kg");
-        } else if (heaviestAnimalsNames.size() > 1) {
-            StringBuilder result = new StringBuilder("Gli esemplari più pesanti nella specie indicata sono ");
-
-            for (String name : heaviestAnimalsNames) {
-                result.append(name).append(", ");
-            }
-
-            result.delete(result.length() - 2, result.length());
-            result.append(" con un peso di ").append(maxWeight).append(" kg");
-            System.out.println(result);
         } else {
-            System.out.println("Nessun esemplare trovato nella specie indicata");
+            System.out.println("Specie non trovata");
         }
     }
 
     public void findLightestAnimalAmongASpecie(Class<? extends Animal> specie) {
-        Double minWeight = 0.0;
-        List<String> lightestAnimalsNames = new ArrayList<>();
+        List<? extends Animal> filteredAnimals = getAllAnimalsOfASpecifiedSpecie(specie);
 
-        for (Animal animal : allAnimals) {
-            if (animal.getClass() == specie) {
-                if (minWeight == 0.0) {
-                    minWeight = animal.getWeight();
-                    lightestAnimalsNames.add(animal.getName());
-                } else {
-                    if (animal.getWeight() < minWeight) {
-                        minWeight = animal.getWeight();
-                        lightestAnimalsNames.clear();
-                        lightestAnimalsNames.add(animal.getName());
-                    } else if (animal.getWeight() == minWeight) {
-                        lightestAnimalsNames.add(animal.getName());
-                    }
-                }
-            }
-        }
+        if (!filteredAnimals.isEmpty()) {
+            double minWeight = filteredAnimals.stream()
+                    .mapToDouble(Animal::getHeight)
+                    .min()
+                    .orElse(0.0);
 
-        if (lightestAnimalsNames.size() == 1) {
-            System.out.println("L'esemplare più leggero nella specie indicata è " + lightestAnimalsNames.get(0) + " con un peso di " + minWeight + " kg");
-        } else if (lightestAnimalsNames.size() > 1) {
-            StringBuilder result = new StringBuilder("Gli esemplari più leggeri nella specie indicata sono ");
+            List<String> lightestAnimalsNames = filteredAnimals.stream()
+                    .filter(animal -> animal.getHeight() == minWeight)
+                    .map(Animal::getName)
+                    .toList();
 
-            for (String name : lightestAnimalsNames) {
-                result.append(name).append(", ");
+            if (lightestAnimalsNames.size() == 1) {
+                System.out.println("L'esemplare più leggero nella specie " + speciesNamesTranslation(specie) + " è " + lightestAnimalsNames.get(0) + " con un peso di " + minWeight);
+            } else if (lightestAnimalsNames.size() > 1) {
+                String result = lightestAnimalsNames.stream()
+                        .collect(Collectors.joining(", ", "Gli esemplari più leggeri nella specie " + speciesNamesTranslation(specie) + " sono ", " con un peso di " + minWeight + " kg"));
+                System.out.println(result);
+            } else {
+                System.out.println("Nessun esemplare trovato nella specie selezionata");
             }
 
-            result.delete(result.length() - 2, result.length());
-            result.append(" con un peso di ").append(minWeight).append(" kg");
-            System.out.println(result);
         } else {
-            System.out.println("Nessun esemplare trovato nella specie indicata");
+            System.out.println("Specie non trovata");
         }
-
     }
 
     public void findLongestTailAmongTailedAnimals() {
-        Double maxTailLength = 0.0;
-        List<String> longestTailAnimalsNames = new ArrayList<>();
+        List<? extends Animal> tailedAnimals = getAllAnimalsWithASpecifiedTrait(TailedAnimal.class);
 
-        for (Animal animal : allAnimals) {
-            if (animal instanceof TailedAnimal) {
-                if (((TailedAnimal) animal).getTailLength() > maxTailLength) {
-                    maxTailLength = ((TailedAnimal) animal).getTailLength();
-                    longestTailAnimalsNames.clear();
-                    longestTailAnimalsNames.add(animal.getName());
-                } else if (((TailedAnimal) animal).getTailLength() == maxTailLength) {
-                    longestTailAnimalsNames.add(animal.getName());
-                }
+        if (!tailedAnimals.isEmpty()) {
+            double longestTail = tailedAnimals.stream()
+                    .mapToDouble(animal -> ((TailedAnimal) animal).getTailLength())
+                    .max()
+                    .orElse(0.0);
+
+            List<String> animalsWithLongestTails = tailedAnimals.stream()
+                    .filter(animal -> ((TailedAnimal) animal).getTailLength() == longestTail)
+                    .map(Animal::getName)
+                    .toList();
+
+            if (animalsWithLongestTails.size() == 1) {
+                System.out.println("L'animale con la coda più lunga è " + animalsWithLongestTails.get(0) + " con una lunghezza di " + longestTail + " m");
+            } else {
+                String result = animalsWithLongestTails.stream()
+                        .collect(Collectors.joining(", ", "Gli animali con le code più lunghe sono ", " con una lunghezza di " + longestTail + " m"));
+                System.out.println(result);
             }
-        }
-
-        if (longestTailAnimalsNames.size() == 1) {
-            System.out.println("L'animale con la coda più lunga tra quelli dotati di coda è " + longestTailAnimalsNames.get(0) + " con una coda di lunghezza pari a " + maxTailLength + " m");
-        } else if (longestTailAnimalsNames.size() > 1) {
-            StringBuilder result = new StringBuilder("Gli animali con la coda più lunga tra quelli dotati di coda sono ");
-
-            for (String name : longestTailAnimalsNames) {
-                result.append(name).append(", ");
-            }
-
-            result.delete(result.length() - 2, result.length());
-            result.append(" con una coda di lunghezza pari a ").append(maxTailLength).append(" m");
-            System.out.println(result);
         } else {
-            System.out.println("Nessun esemplare dotato di coda trovato");
+            System.out.println("Nessun animale con coda presente nel sistema");
         }
-
     }
 
     public void findBiggestWingspanAmongWingedAnimals() {
-        Double maxWingspan = 0.0;
-        List<String> biggestWingspanAnimalsNames = new ArrayList<>();
+        List<? extends Animal> wingedAnimals = getAllAnimalsWithASpecifiedTrait(WingedAnimal.class);
 
-        for (Animal animal : allAnimals) {
-            if (animal instanceof WingedAnimal) {
-                if (((WingedAnimal) animal).getWingspan() > maxWingspan) {
-                    maxWingspan = ((WingedAnimal) animal).getWingspan();
-                    biggestWingspanAnimalsNames.clear();
-                    biggestWingspanAnimalsNames.add(animal.getName());
-                } else if (((WingedAnimal) animal).getWingspan() == maxWingspan) {
-                    biggestWingspanAnimalsNames.add(animal.getName());
-                }
-            }
-        }
+        if (!wingedAnimals.isEmpty()) {
+            double biggestWingspan = wingedAnimals.stream()
+                    .mapToDouble(animal -> ((WingedAnimal) animal).getWingspan())
+                    .max()
+                    .orElse(0.0);
 
-        if (biggestWingspanAnimalsNames.size() == 1) {
-            System.out.println("L'animale con l'apertura alare più ampia tra quelli dotati di ali è " + biggestWingspanAnimalsNames.get(0) + " con un'apertura alare pari a " + maxWingspan + " m");
-        } else if (biggestWingspanAnimalsNames.size() > 1) {
-            StringBuilder result = new StringBuilder("Gli animali con l'apertura alare più ampia tra quelli dotati di ali sono ");
+            List<String> animalsWithBiggestWingspan = wingedAnimals.stream()
+                    .filter(animal -> ((WingedAnimal) animal).getWingspan() == biggestWingspan)
+                    .map(Animal::getName)
+                    .toList();
 
-            for (String name : biggestWingspanAnimalsNames) {
-                result.append(name).append(", ");
+            if (animalsWithBiggestWingspan.size() == 1) {
+                System.out.println("L'animale con l'apertura alare più grande è " + animalsWithBiggestWingspan.get(0) + " con un'apertura di " + biggestWingspan + " m");
+            } else {
+                String result = animalsWithBiggestWingspan.stream()
+                        .collect(Collectors.joining(", ", "Gli animali con le apertura alare più grande sono ", " con un'apertura di " + biggestWingspan + " m"));
+                System.out.println(result);
             }
 
-            result.delete(result.length() - 2, result.length());
-            result.append(" con un'apertura alare di ").append(maxWingspan).append(" m");
-            System.out.println(result);
+        } else {
+            System.out.println("Nessun animale con apertura alare nel sistema");
         }
-
     }
 }
