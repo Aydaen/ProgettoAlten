@@ -1,5 +1,7 @@
 package com.alten.progettozoo;
 
+import com.alten.progettozoo.Util.Printer;
+
 public class ProgettoZooApplication {
 
     // L'obbiettivo di questa lavorazione era ottimizzare il codice inviato l'ultima volta utilizzando gli stream e velocizzare l'accesso alle liste contenenti solo
@@ -8,24 +10,32 @@ public class ProgettoZooApplication {
         Zoo myZoo = new Zoo();
         myZoo.initializeZoo();
 
-        myZoo.findTallestAnimalAmongASpecie(Eagle.class);
-        myZoo.findTallestAnimalAmongASpecie(Tiger.class);
-        myZoo.findTallestAnimalAmongASpecie(Lion.class);
+        Printer myPrinter = new Printer();
 
-        myZoo.findShortestAnimalAmongASpecie(Eagle.class);
-        myZoo.findShortestAnimalAmongASpecie(Tiger.class);
-        myZoo.findShortestAnimalAmongASpecie(Lion.class);
+        System.out.println("ANIMALI PIU' ALTI");
+        myPrinter.printAnimalsInformation(myZoo.findTallestAnimalsBySpecies(Eagle.class));
+        myPrinter.printAnimalsInformation(myZoo.findTallestAnimalsBySpecies(Tiger.class));
+        myPrinter.printAnimalsInformation(myZoo.findTallestAnimalsBySpecies(Lion.class));
 
-        myZoo.findHeaviestAnimalAmongASpecie(Eagle.class);
-        myZoo.findHeaviestAnimalAmongASpecie(Tiger.class);
-        myZoo.findHeaviestAnimalAmongASpecie(Lion.class);
+//        System.out.println("ANIMALI PIU' BASSI");
+//        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Eagle.class));
+//        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Tiger.class));
+//        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Lion.class));
 
-        myZoo.findLightestAnimalAmongASpecie(Eagle.class);
-        myZoo.findLightestAnimalAmongASpecie(Tiger.class);
-        myZoo.findLightestAnimalAmongASpecie(Lion.class);
+        System.out.println("ANIMALI PIU' PESANTI");
+        myPrinter.printAnimalsInformation(myZoo.findHeaviestAnimalsBySpecie(Eagle.class));
+        myPrinter.printAnimalsInformation(myZoo.findHeaviestAnimalsBySpecie(Tiger.class));
+        myPrinter.printAnimalsInformation(myZoo.findHeaviestAnimalsBySpecie(Lion.class));
 
-        myZoo.findLongestTailAmongTailedAnimals();
+        System.out.println("ANIMALI PIU' LEGGERI");
+        myPrinter.printAnimalsInformation(myZoo.findLightestAnimalsBySpecie(Eagle.class));
+        myPrinter.printAnimalsInformation(myZoo.findLightestAnimalsBySpecie(Tiger.class));
+        myPrinter.printAnimalsInformation(myZoo.findLightestAnimalsBySpecie(Lion.class));
 
-        myZoo.findBiggestWingspanAmongWingedAnimals();
+        System.out.println("ANIMALI CON LA CODA PIU' LUNGA");
+        myPrinter.printAnimalsInformation(myZoo.findLongestTails());
+
+        System.out.println("ANIMALI CON L'APERTURA ALARE MAGGIORE");
+        myPrinter.printAnimalsInformation(myZoo.findBiggestWingspans());
     }
 }
