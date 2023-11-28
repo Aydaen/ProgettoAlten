@@ -4,8 +4,8 @@ import com.alten.progettozoo.Util.Printer;
 
 public class ProgettoZooApplication {
 
-    // L'obbiettivo di questa lavorazione era ottimizzare il codice inviato l'ultima volta utilizzando gli stream e velocizzare l'accesso alle liste contenenti solo
-    // animali della stessa specie
+    // L'obbiettivo di questa lavorazione era utilizzare i generics nei metodi Zoo, al fine di poter restituire come tipo di ritorno dei metodi di query lo stesso tipo
+    // passato come parametro
     public static void main(String[] args) {
         Zoo myZoo = new Zoo();
         myZoo.initializeZoo();
@@ -17,10 +17,10 @@ public class ProgettoZooApplication {
         myPrinter.printAnimalsInformation(myZoo.findTallestAnimalsBySpecies(Tiger.class));
         myPrinter.printAnimalsInformation(myZoo.findTallestAnimalsBySpecies(Lion.class));
 
-//        System.out.println("ANIMALI PIU' BASSI");
-//        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Eagle.class));
-//        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Tiger.class));
-//        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Lion.class));
+        System.out.println("ANIMALI PIU' BASSI");
+        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Eagle.class));
+        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Tiger.class));
+        myPrinter.printAnimalsInformation(myZoo.findShortestAnimalsBySpecies(Lion.class));
 
         System.out.println("ANIMALI PIU' PESANTI");
         myPrinter.printAnimalsInformation(myZoo.findHeaviestAnimalsBySpecie(Eagle.class));

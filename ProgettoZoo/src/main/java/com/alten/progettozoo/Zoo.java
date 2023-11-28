@@ -8,14 +8,11 @@ public class Zoo {
 
     private final Map<Class<? extends Animal>, List<Animal>> allAnimals = new HashMap<>();
 
-    // Il seguente metodo serve ad aggiungere gli animali alle rispettive liste nella mappa. Se si cerca di aggiungere un animale di una specie inesistente, l'array della
-    // suddetta specie viene creato
     public void addAnimal(Animal animal) {
         Class<? extends Animal> species = animal.getClass();
         allAnimals.computeIfAbsent(species, key -> new ArrayList<>()).add(animal);
     }
 
-    // Grazie al metodo addAnimal ora non è più necessario creare a mano le liste in base alle specie all'interno del metodo initializeZoo
     public void initializeZoo() {
         addAnimal(new Eagle("Baldy", "Fish", 5, LocalDate.of(2020, 3, 15), 5.0, 0.5, 2.0));
         addAnimal(new Eagle("Titty", "Fish", 3, LocalDate.of(2022, 6, 10), 3.0, 0.4, 1.8));
@@ -30,22 +27,18 @@ public class Zoo {
         addAnimal(new Lion("Mufasa", "Meat", 10, LocalDate.of(2015, 12, 3), 220.0, 1.1, 0.9));
     }
 
-    // Metodo commentato poiché inutilizzato nella nuova versione del codice
-//    public String speciesNamesTranslation(Class<? extends Animal> species) {
-//        Map<Class<? extends Animal>, String> speciesNames = Map.of(
-//                Eagle.class, "aquila",
-//                Tiger.class, "tigre",
-//                Lion.class, "leone"
-//        );
-//
-//        return speciesNames.getOrDefault(species, "Specie sconosciuta");
-//    }
+    public <T extends Animal> List<T> getAllAnimalsBySpecies(Class<T> species) {
+        if (allAnimals.get(species) != null) {
+            return (List<T>) allAnimals.get(species);
+        }
 
-    public List<Animal> getAllAnimalsBySpecies(Class<? extends Animal> species) {
-        return allAnimals.get(species);
+        return allAnimals.values().stream()
+                .filter(species::isInstance)
+                .map(species::cast)
+                .collect(Collectors.toList());
     }
 
-    public <T extends Animal> List<T> getAllAnimalsWithASpecifiedTrait(Class<T> trait) {
+    public <T extends Animal> List<T> getAllAnimalsByTrait(Class<T> trait) {
         return allAnimals.values().stream()
                 .flatMap(Collection::stream)
                 .filter(trait::isInstance)
@@ -53,10 +46,8 @@ public class Zoo {
                 .toList();
     }
 
-    // Seguendo il principio di separazione comando-interazione i metodi che seguono non comprendono più la stampa della lista di animali, bensì ritornano la lista che viene
-    // invece stampata dai metodi della classe Printer
-    public List<Animal> findTallestAnimalsBySpecies(Class<? extends Animal> species) {
-        List<Animal> filteredAnimals = getAllAnimalsBySpecies(species);
+    public <T extends Animal> List<T> findTallestAnimalsBySpecies(Class<T> species) {
+        List<T> filteredAnimals = getAllAnimalsBySpecies(species);
 
         if (filteredAnimals.isEmpty()) {
             return null;
@@ -72,9 +63,8 @@ public class Zoo {
                 .collect(Collectors.toList());
     }
 
-    // Questo metodo differisce dagli altri a causa di dubbi da esporre a Davide il giorno della correzione, al momento risulta inutilizzato
     public <T extends Animal> List<T> findShortestAnimalsBySpecies(Class<T> species) {
-        List<? extends Animal> filteredAnimals = getAllAnimalsBySpecies(species);
+        List<T> filteredAnimals = getAllAnimalsBySpecies(species);
 
         if (filteredAnimals.isEmpty()) {
             return null;
@@ -87,12 +77,11 @@ public class Zoo {
 
         return filteredAnimals.stream()
                 .filter(animal -> animal.getHeight() == minHeight)
-                .map(species::cast)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    public List<Animal> findHeaviestAnimalsBySpecie(Class<? extends Animal> species) {
-        List<Animal> filteredAnimals = getAllAnimalsBySpecies(species);
+    public <T extends Animal> List<T> findHeaviestAnimalsBySpecie(Class<T> species) {
+        List<T> filteredAnimals = getAllAnimalsBySpecies(species);
 
         if (filteredAnimals.isEmpty()) {
             return null;
@@ -108,8 +97,8 @@ public class Zoo {
                 .collect(Collectors.toList());
     }
 
-    public List<Animal> findLightestAnimalsBySpecie(Class<? extends Animal> species) {
-        List<Animal> filteredAnimals = getAllAnimalsBySpecies(species);
+    public <T extends Animal> List<T> findLightestAnimalsBySpecie(Class<T> species) {
+        List<T> filteredAnimals = getAllAnimalsBySpecies(species);
 
         if (filteredAnimals.isEmpty()) {
             return null;
@@ -125,8 +114,8 @@ public class Zoo {
                 .collect(Collectors.toList());
     }
 
-    public List<Animal> findLongestTails() {
-        List<TailedAnimal> tailedAnimals = getAllAnimalsWithASpecifiedTrait(TailedAnimal.class);
+    public List<TailedAnimal> findLongestTails() {
+        List<TailedAnimal> tailedAnimals = getAllAnimalsByTrait(TailedAnimal.class);
 
         if (tailedAnimals.isEmpty()) {
             return null;
@@ -142,8 +131,8 @@ public class Zoo {
                 .collect(Collectors.toList());
     }
 
-    public List<Animal> findBiggestWingspans() {
-        List<WingedAnimal> wingedAnimals = getAllAnimalsWithASpecifiedTrait(WingedAnimal.class);
+    public List<WingedAnimal> findBiggestWingspans() {
+        List<WingedAnimal> wingedAnimals = getAllAnimalsByTrait(WingedAnimal.class);
 
         if (wingedAnimals.isEmpty()) {
             return null;

@@ -5,13 +5,13 @@ import com.alten.progettozoo.Animal;
 import java.util.List;
 
 public class Printer {
-    public void printAnimalsInformation (List<Animal> animals) {
+    public void printAnimalsInformation (List<? extends Animal> animals) {
         if (animals == null) {
             System.out.println("Nessun animale presente nella specie indicata");
             return;
         }
 
-        animals.stream()
+        animals
                 .forEach(animal -> {
                     System.out.println(animal.getName());
                 });
