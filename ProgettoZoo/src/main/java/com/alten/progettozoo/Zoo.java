@@ -28,14 +28,7 @@ public class Zoo {
     }
 
     public <T extends Animal> List<T> getAllAnimalsBySpecies(Class<T> species) {
-        if (allAnimals.get(species) != null) {
-            return (List<T>) allAnimals.get(species);
-        }
-
-        return allAnimals.values().stream()
-                .filter(species::isInstance)
-                .map(species::cast)
-                .collect(Collectors.toList());
+        return (List<T>) allAnimals.get(species);
     }
 
     public <T extends Animal> List<T> getAllAnimalsByTrait(Class<T> trait) {
